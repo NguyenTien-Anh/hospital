@@ -1,6 +1,11 @@
 import express from "express"
 import { getHomePage, getCRUD } from "../controllers/homeControler"
-import { handleLogin } from "../controllers/userController"
+import {
+    handleLogin, handleGetAllUsers,
+    handleCreateNewUser, handleEditUser,
+    handleDeleteUser, getALLCode
+} from "../controllers/userController"
+import { getTopDoctorHome } from "../controllers/doctorControler"
 
 let router = express.Router()
 
@@ -9,6 +14,12 @@ let initWebRouter = (app) => {
     router.get('/crud', getCRUD)
 
     router.post('/api/login', handleLogin)
+    router.get('/api/get-all-users', handleGetAllUsers)
+    router.post('/api/create-new-user', handleCreateNewUser)
+    router.put('/api/edit-user', handleEditUser)
+    router.delete('/api/delete-user', handleDeleteUser)
+    router.get('/api/allcode', getALLCode)
+    router.get('/api/top-doctor-home', getTopDoctorHome)
     return app.use('/', router)
 }
 
