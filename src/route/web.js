@@ -5,7 +5,7 @@ import {
     handleCreateNewUser, handleEditUser,
     handleDeleteUser, getALLCode
 } from "../controllers/userController"
-import { getTopDoctorHome } from "../controllers/doctorControler"
+import { getTopDoctorHome, getAllDoctor, postInfoDoctor } from "../controllers/doctorControler"
 
 let router = express.Router()
 
@@ -20,6 +20,8 @@ let initWebRouter = (app) => {
     router.delete('/api/delete-user', handleDeleteUser)
     router.get('/api/allcode', getALLCode)
     router.get('/api/top-doctor-home', getTopDoctorHome)
+    router.get('/api/get-all-doctor', getAllDoctor)
+    router.post('/api/save-info-doctor', postInfoDoctor)
     return app.use('/', router)
 }
 
