@@ -77,6 +77,49 @@ let postInfoDoctor = (data) => {
     })
 }
 
+let getDetailDoctorById = (id) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!id) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing input parameter!'
+                })
+            } else {
+                let detailDoctor = await db.User.findOne({
+                    where: { id },
+                    attributes: {
+                        exclude: ['password', 'image']
+                    },
+                    include: [
+                        {
+                            model: db.Markdown,
+                            attributes: ['contentHTML', 'contentMarkdown',
+                                'description',
+                            ]
+                        },
+                        {
+                            model: db.Allcode,
+                            as: 'positionData',
+                            attributes: ['valueEn', 'valueVi']
+                        },
+                    ],
+                    raw: true,
+                    nest: true
+                })
+
+                resolve({
+                    errCode: 0,
+                    data: detailDoctor
+                })
+            }
+        } catch (e) {
+            console.log(e)
+            reject(e)
+        }
+    })
+}
+
 module.exports = {
-    getTopDoctorHome, getAllDoctor, postInfoDoctor
+    getTopDoctorHome, getAllDoctor, postInfoDoctor, getDetailDoctorById
 }
