@@ -7,7 +7,7 @@ import {
 } from "../controllers/userController"
 import {
     getTopDoctorHome, getAllDoctor, postInfoDoctor,
-    getDetailDoctorById
+    getDetailDoctorById, getDetailDoctorMarkdown
 } from "../controllers/doctorControler"
 
 let router = express.Router()
@@ -28,6 +28,7 @@ let initWebRouter = (app) => {
     router.post('/api/save-info-doctor', postInfoDoctor)
 
     router.get('/api/get-detail-doctor-by-id', getDetailDoctorById)
+    router.get('/api/get-detail-doctor-markdown', getDetailDoctorMarkdown)
     return app.use('/', router)
 }
 

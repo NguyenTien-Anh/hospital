@@ -52,18 +52,36 @@ let getAllDoctor = () => {
 let postInfoDoctor = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
-            if (!data.doctorId || !data.contentHtml || !data.contentMarkdown) {
+            if (!data.doctorId || !data.contentHtml || !data.contentMarkdown ||
+                !data.action) {
                 resolve({
                     errCode: 1,
                     errMessage: `Missing input parameter!`
                 })
             } else {
-                await db.Markdown.create({
-                    contentHtml: data.contentHtml,
-                    contentMarkdown: data.contentMarkdown,
-                    description: data.description,
-                    doctorId: data.doctorId,
-                })
+                if (data.action === 'CREATE') {
+                    await db.Markdown.create({
+                        contentHtml: data.contentHtml,
+                        contentMarkdown: data.contentMarkdown,
+                        description: data.description,
+                        doctorId: data.doctorId,
+                    })
+                } else if (data.action === 'EDIT') {
+                    let markdown = await db.Markdown.findOne({
+                        where: { doctorId: data.doctorId },
+                        raw: false,
+                    })
+
+                    // console.log('check markdown: ', markdown)
+
+                    if (markdown) {
+                        markdown.contentHtml = data.contentHtml
+                        markdown.contentMarkdown = data.contentMarkdown
+                        markdown.description = data.description
+
+                        await markdown.save()
+                    }
+                }
 
             }
             resolve({
@@ -89,7 +107,7 @@ let getDetailDoctorById = (id) => {
                 let detailDoctor = await db.User.findOne({
                     where: { id },
                     attributes: {
-                        exclude: ['password', 'image']
+                        exclude: ['password']
                     },
                     include: [
                         {
@@ -104,9 +122,15 @@ let getDetailDoctorById = (id) => {
                             attributes: ['valueEn', 'valueVi']
                         },
                     ],
-                    raw: true,
+                    raw: false,
                     nest: true
                 })
+
+                if (detailDoctor && detailDoctor.image) {
+                    detailDoctor.image = new Buffer(detailDoctor.image, 'base64').toString('binary')
+                }
+
+                if (!detailDoctor) data = {}
 
                 resolve({
                     errCode: 0,
@@ -120,6 +144,35 @@ let getDetailDoctorById = (id) => {
     })
 }
 
+let getDetailDoctorMarkdown = (id) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!id) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing input parameter!'
+                })
+            } else {
+                let detailDoctorMarkdown = await db.Markdown.findOne({
+                    where: { doctorId: id },
+                    attributes: ['contentHtml', 'contentMarkdown', 'description'],
+                })
+
+                // if (!detailDoctorMarkdown) detailDoctorMarkdown = {}
+
+                resolve({
+                    errCode: 0,
+                    data: detailDoctorMarkdown
+                })
+            }
+        } catch (e) {
+            console.log(e)
+            reject(e)
+        }
+    })
+}
+
 module.exports = {
-    getTopDoctorHome, getAllDoctor, postInfoDoctor, getDetailDoctorById
+    getTopDoctorHome, getAllDoctor, postInfoDoctor, getDetailDoctorById,
+    getDetailDoctorMarkdown
 }
