@@ -1,4 +1,8 @@
 import db from '../models/index'
+require('dotenv').config()
+import _ from 'lodash'
+
+const MAX_NUMBER_SCHEDULE = process.env.MAX_NUMBER_SCHEDULE
 
 let getTopDoctorHome = (limit) => {
     return new Promise(async (resolve, reject) => {
@@ -172,7 +176,88 @@ let getDetailDoctorMarkdown = (id) => {
     })
 }
 
+let bulkCreateSchedule = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!data.arrSchedule || !data.doctorId || !data.date) {
+                resolve({
+                    errCode: -1,
+                    errMessage: 'Missing input parameter'
+                })
+            } else {
+                let schedule = data.arrSchedule
+                if (schedule && schedule.length > 0) {
+                    schedule.map(item => {
+                        item.maxNumber = MAX_NUMBER_SCHEDULE
+                        return item
+                    })
+                    // console.log('check schedule: ', schedule)
+                }
+
+                // existing
+                let existing = await db.Schedule.findAll({
+                    where: { doctorId: data.doctorId, date: data.date },
+                    attributes: ['timeType', 'doctorId', 'date', 'maxNumber'],
+                    raw: true,
+                })
+
+                // convert date
+                if (existing && existing.length > 0) {
+                    existing = existing.map(item => {
+                        item.date = new Date(item.date).getTime()
+                        return item
+                    })
+                }
+
+                // different
+                let toCreate = _.differenceWith(schedule, existing, (a, b) => {
+                    return a.date === b.date && a.timeType === b.timeType
+                })
+
+                // Create
+                if (toCreate && toCreate.length > 0) {
+                    await db.Schedule.bulkCreate(toCreate)
+                }
+                resolve({
+                    errCode: 0,
+                    errMessage: 'Bulk Create success!'
+                })
+            }
+        } catch (e) {
+            console.log(e)
+            reject(e)
+        }
+    })
+}
+
+let getScheduleDoctorByDate = (doctorId, date) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!doctorId || !date) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing input parameter!'
+                })
+            } else {
+                let data = await db.Schedule.findAll({
+                    where: { doctorId, date }
+                })
+
+                if (!data) detailDoctorMarkdown = []
+
+                resolve({
+                    errCode: 0,
+                    data
+                })
+            }
+        } catch (e) {
+            console.log(e)
+            reject(e)
+        }
+    })
+}
+
 module.exports = {
     getTopDoctorHome, getAllDoctor, postInfoDoctor, getDetailDoctorById,
-    getDetailDoctorMarkdown
+    getDetailDoctorMarkdown, bulkCreateSchedule, getScheduleDoctorByDate
 }
