@@ -162,8 +162,6 @@ let getDetailDoctorMarkdown = (id) => {
                     attributes: ['contentHtml', 'contentMarkdown', 'description'],
                 })
 
-                // if (!detailDoctorMarkdown) detailDoctorMarkdown = {}
-
                 resolve({
                     errCode: 0,
                     data: detailDoctorMarkdown
@@ -191,7 +189,6 @@ let bulkCreateSchedule = (data) => {
                         item.maxNumber = MAX_NUMBER_SCHEDULE
                         return item
                     })
-                    // console.log('check schedule: ', schedule)
                 }
 
                 // existing
@@ -201,17 +198,9 @@ let bulkCreateSchedule = (data) => {
                     raw: true,
                 })
 
-                // convert date
-                if (existing && existing.length > 0) {
-                    existing = existing.map(item => {
-                        item.date = new Date(item.date).getTime()
-                        return item
-                    })
-                }
-
                 // different
                 let toCreate = _.differenceWith(schedule, existing, (a, b) => {
-                    return a.date === b.date && a.timeType === b.timeType
+                    return +a.date === +b.date && a.timeType === b.timeType
                 })
 
                 // Create
@@ -240,10 +229,13 @@ let getScheduleDoctorByDate = (doctorId, date) => {
                 })
             } else {
                 let data = await db.Schedule.findAll({
-                    where: { doctorId, date }
+                    where: { doctorId, date },
+                    include: [
+                        { model: db.Allcode, as: 'timeTypeData', attributes: ['valueEn', 'valueVi'] },
+                    ],
+                    raw: false,
+                    nest: true
                 })
-
-                if (!data) detailDoctorMarkdown = []
 
                 resolve({
                     errCode: 0,
