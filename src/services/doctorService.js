@@ -56,13 +56,17 @@ let getAllDoctor = () => {
 let postInfoDoctor = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
-            if (!data.doctorId || !data.contentHtml || !data.contentMarkdown ||
-                !data.action) {
+            if (
+                !data.doctorId || !data.contentHtml || !data.contentMarkdown ||
+                !data.action || !data.selectedPrice || !data.selectedPayment || !data.selectedProvince
+                || !data.nameClinic || !data.addressClinic || !data.note
+            ) {
                 resolve({
                     errCode: 1,
                     errMessage: `Missing input parameter!`
                 })
             } else {
+                // upsert to Markdown table
                 if (data.action === 'CREATE') {
                     await db.Markdown.create({
                         contentHtml: data.contentHtml,
@@ -87,6 +91,34 @@ let postInfoDoctor = (data) => {
                     }
                 }
 
+                // upsert to Doctor-info table
+                let doctorInfo = await db.Doctor_info.findOne({
+                    where: { doctorId: data.doctorId },
+                    raw: false,
+                })
+                if (doctorInfo) {
+                    // update
+                    doctorInfo.doctorId = data.doctorId
+                    doctorInfo.priceId = data.selectedPrice
+                    doctorInfo.paymentId = data.selectedPayment
+                    doctorInfo.provinceId = data.selectedProvince
+                    doctorInfo.nameClinic = data.nameClinic
+                    doctorInfo.addressClinic = data.addressClinic
+                    doctorInfo.note = data.note
+
+                    await doctorInfo.save()
+                } else {
+                    // create
+                    await db.Doctor_info.create({
+                        doctorId: data.doctorId,
+                        priceId: data.selectedPrice.value,
+                        paymentId: data.selectedPayment.value,
+                        provinceId: data.selectedProvince.value,
+                        nameClinic: data.nameClinic,
+                        addressClinic: data.addressClinic,
+                        note: data.note,
+                    })
+                }
             }
             resolve({
                 errCode: 0,
