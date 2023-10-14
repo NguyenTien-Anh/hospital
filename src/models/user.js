@@ -10,9 +10,15 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
+      // Allcode
       User.belongsTo(models.Allcode, { foreignKey: 'positionId', targetKey: 'keyMap', as: 'positionData' })
       User.belongsTo(models.Allcode, { foreignKey: 'gender', targetKey: 'keyMap', as: 'genderData' })
+
+      // Markdown
       User.hasOne(models.Markdown, { foreignKey: 'doctorId' })
+
+      // Doctor_info
+      User.hasOne(models.Doctor_info, { foreignKey: 'doctorId' })
     }
   };
   User.init({

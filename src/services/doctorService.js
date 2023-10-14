@@ -157,6 +157,29 @@ let getDetailDoctorById = (id) => {
                             as: 'positionData',
                             attributes: ['valueEn', 'valueVi']
                         },
+                        {
+                            model: db.Doctor_info,
+                            attributes: {
+                                exclude: ['id', 'doctorId', 'createdAt', 'updatedAt'],
+                            },
+                            include: [
+                                {
+                                    model: db.Allcode,
+                                    as: 'priceData',
+                                    attributes: ['valueEn', 'valueVi']
+                                },
+                                {
+                                    model: db.Allcode,
+                                    as: 'provinceData',
+                                    attributes: ['valueEn', 'valueVi']
+                                },
+                                {
+                                    model: db.Allcode,
+                                    as: 'paymentData',
+                                    attributes: ['valueEn', 'valueVi']
+                                },
+                            ],
+                        },
                     ],
                     raw: false,
                     nest: true
@@ -166,37 +189,11 @@ let getDetailDoctorById = (id) => {
                     detailDoctor.image = new Buffer(detailDoctor.image, 'base64').toString('binary')
                 }
 
-                if (!detailDoctor) data = {}
+                if (!detailDoctor) detailDoctor = {}
 
                 resolve({
                     errCode: 0,
                     data: detailDoctor
-                })
-            }
-        } catch (e) {
-            console.log(e)
-            reject(e)
-        }
-    })
-}
-
-let getDetailDoctorMarkdown = (id) => {
-    return new Promise(async (resolve, reject) => {
-        try {
-            if (!id) {
-                resolve({
-                    errCode: 1,
-                    errMessage: 'Missing input parameter!'
-                })
-            } else {
-                let detailDoctorMarkdown = await db.Markdown.findOne({
-                    where: { doctorId: id },
-                    attributes: ['contentHtml', 'contentMarkdown', 'description'],
-                })
-
-                resolve({
-                    errCode: 0,
-                    data: detailDoctorMarkdown
                 })
             }
         } catch (e) {
@@ -281,7 +278,56 @@ let getScheduleDoctorByDate = (doctorId, date) => {
     })
 }
 
+let getExtraInfoDoctorById = (doctorId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!doctorId) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing input parameter!'
+                })
+            } else {
+                let detailDoctor = await db.Doctor_info.findOne({
+                    where: { doctorId },
+                    attributes: {
+                        exclude: ['id', 'doctorId', 'createdAt', 'updatedAt'],
+                    },
+                    include: [
+                        {
+                            model: db.Allcode,
+                            as: 'priceData',
+                            attributes: ['valueEn', 'valueVi']
+                        },
+                        {
+                            model: db.Allcode,
+                            as: 'provinceData',
+                            attributes: ['valueEn', 'valueVi']
+                        },
+                        {
+                            model: db.Allcode,
+                            as: 'paymentData',
+                            attributes: ['valueEn', 'valueVi']
+                        },
+                    ],
+                    raw: false,
+                    nest: true
+                })
+
+                if (!detailDoctor) detailDoctor = {}
+
+                resolve({
+                    errCode: 0,
+                    data: detailDoctor
+                })
+            }
+        } catch (e) {
+            console.log(e)
+            reject(e)
+        }
+    })
+}
+
 module.exports = {
     getTopDoctorHome, getAllDoctor, postInfoDoctor, getDetailDoctorById,
-    getDetailDoctorMarkdown, bulkCreateSchedule, getScheduleDoctorByDate
+    bulkCreateSchedule, getScheduleDoctorByDate, getExtraInfoDoctorById
 }
