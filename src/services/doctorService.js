@@ -148,9 +148,7 @@ let getDetailDoctorById = (id) => {
                     include: [
                         {
                             model: db.Markdown,
-                            attributes: ['contentHTML', 'contentMarkdown',
-                                'description',
-                            ]
+                            attributes: ['contentHTML', 'contentMarkdown', 'description']
                         },
                         {
                             model: db.Allcode,
@@ -327,7 +325,78 @@ let getExtraInfoDoctorById = (doctorId) => {
     })
 }
 
+let getProfileDoctorById = (id) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!id) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing input parameter!'
+                })
+            } else {
+                let profileDoctor = await db.User.findOne({
+                    where: { id },
+                    attributes: {
+                        exclude: ['password']
+                    },
+                    include: [
+                        {
+                            model: db.Markdown,
+                            attributes: ['contentHTML', 'contentMarkdown', 'description']
+                        },
+                        {
+                            model: db.Allcode,
+                            as: 'positionData',
+                            attributes: ['valueEn', 'valueVi']
+                        },
+                        {
+                            model: db.Doctor_info,
+                            attributes: {
+                                exclude: ['id', 'doctorId', 'createdAt', 'updatedAt'],
+                            },
+                            include: [
+                                {
+                                    model: db.Allcode,
+                                    as: 'priceData',
+                                    attributes: ['valueEn', 'valueVi']
+                                },
+                                {
+                                    model: db.Allcode,
+                                    as: 'provinceData',
+                                    attributes: ['valueEn', 'valueVi']
+                                },
+                                {
+                                    model: db.Allcode,
+                                    as: 'paymentData',
+                                    attributes: ['valueEn', 'valueVi']
+                                },
+                            ],
+                        },
+                    ],
+                    raw: false,
+                    nest: true
+                })
+
+                if (profileDoctor && profileDoctor.image) {
+                    profileDoctor.image = new Buffer(profileDoctor.image, 'base64').toString('binary')
+                }
+
+                if (!profileDoctor) profileDoctor = {}
+
+                resolve({
+                    errCode: 0,
+                    data: profileDoctor
+                })
+            }
+        } catch (e) {
+            console.log(e)
+            reject(e)
+        }
+    })
+}
+
 module.exports = {
     getTopDoctorHome, getAllDoctor, postInfoDoctor, getDetailDoctorById,
-    bulkCreateSchedule, getScheduleDoctorByDate, getExtraInfoDoctorById
+    bulkCreateSchedule, getScheduleDoctorByDate, getExtraInfoDoctorById,
+    getProfileDoctorById
 }
