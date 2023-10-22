@@ -11,6 +11,7 @@ import {
     getScheduleDoctorByDate, getExtraInfoDoctorById,
     getProfileDoctorById
 } from "../controllers/doctorControler"
+import { postBookAppointment } from '../controllers/patientControler'
 
 let router = express.Router()
 
@@ -34,6 +35,9 @@ let initWebRouter = (app) => {
     router.get('/api/get-schedule-doctor-by-date', getScheduleDoctorByDate)
     router.get('/api/get-extra-info-doctor-by-id', getExtraInfoDoctorById)
     router.get('/api/get-profile-doctor-by-id', getProfileDoctorById)
+
+    // patientControler
+    router.post('/api/patient-book-appointment', postBookAppointment)
 
     return app.use('/', router)
 }
