@@ -1,5 +1,6 @@
 import { identity } from 'lodash'
 import db from '../models/index'
+import emailService from './mailService'
 
 let postBookAppointment = (data) => {
     return new Promise(async (resolve, reject) => {
@@ -10,6 +11,14 @@ let postBookAppointment = (data) => {
                     errMessage: 'Missing parameter'
                 })
             } else {
+                await emailService.sendSimpleEmail({
+                    receiverEmail: data.email,
+                    patientName: 'Nguyễn Tiến Anh',
+                    time: '9:00 - 10:00 - Thứ 2 - 24/10/2023',
+                    doctorName: 'Nguyễn Tiến Anh',
+                    redirectLink: 'https://github.com/NguyenTien-Anh'
+                })
+
                 // upsert
                 let user = await db.User.findOrCreate({
                     where: { email: data.email },
