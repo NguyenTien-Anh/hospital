@@ -80,13 +80,13 @@ let postVerifyBookAppointment = (data) => {
                     where: {
                         doctorId: data.doctorId,
                         token: data.token,
-                        statusId: 'R1'
+                        statusId: 'S1'
                     },
                     raw: false
                 })
 
                 if (appointment) {
-                    appointment.statusId = 'R2'
+                    appointment.statusId = 'S2'
                     await appointment.save()
                     resolve({
                         errCode: 0,
