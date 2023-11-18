@@ -12,7 +12,7 @@ import {
     getProfileDoctorById
 } from "../controllers/doctorControler"
 import { postBookAppointment, postVerifyBookAppointment } from '../controllers/patientControler'
-import { createNewSpecialty } from '../controllers/specialtyController'
+import { createNewSpecialty, getAllSpecialty } from '../controllers/specialtyController'
 
 let router = express.Router()
 
@@ -47,6 +47,7 @@ let initWebRouter = (app) => {
 
     // specialtyController
     router.post('/api/create-new-specialty', createNewSpecialty)
+    router.get('/api/get-all-specialty', getAllSpecialty)
 
     return app.use('/', router)
 }
