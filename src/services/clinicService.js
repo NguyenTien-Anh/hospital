@@ -1,16 +1,18 @@
 import db from '../models/index'
 
-let createNewSpecialty = (data) => {
+let createNewClinic = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
-            if (!data.name || !data.descriptionHtml || !data.descriptionMarkdown || !data.imageBase64) {
+            if (!data.name || !data.address || !data.descriptionHtml ||
+                !data.descriptionMarkdown || !data.imageBase64) {
                 resolve({
                     errCode: 1,
                     errMessage: `Missing input parameter!`
                 })
             } else {
-                await db.Specialty.create({
+                await db.Clinic.create({
                     name: data.name,
+                    address: data.address,
                     image: data.imageBase64,
                     descriptionHtml: data.descriptionHtml,
                     descriptionMarkdown: data.descriptionMarkdown,
@@ -27,10 +29,10 @@ let createNewSpecialty = (data) => {
     })
 }
 
-let getAllSpecialty = () => {
+let getAllClinic = () => {
     return new Promise(async (resolve, reject) => {
         try {
-            let data = await db.Specialty.findAll()
+            let data = await db.Clinic.findAll()
             if (data && data.length > 0) {
                 data.map(item => {
                     item.image = new Buffer(item.image, 'base64').toString('binary')
@@ -48,44 +50,31 @@ let getAllSpecialty = () => {
     })
 }
 
-let getDetailSpecialtyById = (inputId, location) => {
+let getDetailClinicById = (inputId) => {
     return new Promise(async (resolve, reject) => {
         try {
-            console.log('check inputId: ', inputId)
-            console.log('check location: ', location)
-            if (!inputId || !location) {
+            if (!inputId) {
                 resolve({
                     errCode: 1,
                     errMessage: `Missing input parameter!`
                 })
             }
             else {
-                let data = await db.Specialty.findOne({
+                let data = await db.Clinic.findOne({
                     where: {
                         id: inputId
                     },
-                    attributes: ['descriptionHtml', 'descriptionMarkdown'],
+                    attributes: ['name', 'address', 'descriptionHtml', 'descriptionMarkdown'],
                 })
 
                 if (data) {
-                    let doctorSpecialty = []
-                    if (location === 'ALL') {
-                        doctorSpecialty = await db.Doctor_info.findAll({
-                            where: { specialtyId: inputId },
-                            attributes: ['doctorId', 'provinceId'],
-                        })
-                    } else {
-                        // find by location
-                        doctorSpecialty = await db.Doctor_info.findAll({
-                            where: {
-                                specialtyId: inputId,
-                                provinceId: location
-                            },
-                            attributes: ['doctorId', 'provinceId'],
-                        })
-                    }
+                    let doctorClinic = []
+                    doctorClinic = await db.Doctor_info.findAll({
+                        where: { clinicId: inputId },
+                        attributes: ['doctorId', 'provinceId'],
+                    })
 
-                    data.doctorSpecialty = doctorSpecialty
+                    data.doctorClinic = doctorClinic
                 } else {
                     data = {}
                 }
@@ -102,5 +91,5 @@ let getDetailSpecialtyById = (inputId, location) => {
 }
 
 module.exports = {
-    createNewSpecialty, getAllSpecialty, getDetailSpecialtyById
+    createNewClinic, getAllClinic, getDetailClinicById
 }
