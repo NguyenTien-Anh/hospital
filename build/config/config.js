@@ -1,14 +1,15 @@
-{
+"use strict";
+
+require('dotenv').config();
+module.exports = {
   "development": {
-    "username": "root",
-    "password": null,
-    "database": "nguyenTienAnh",
-    "host": "127.0.0.1",
-    "dialect": "mysql",
-    "timezone": "+07:00",
-    "query": {
-      "raw": true
-    }
+    "username": process.env.DB_USERNAME,
+    "password": process.env.DB_PASSWORD,
+    "database": process.env.DB_DATABASE_NAME,
+    "host": process.env.DB_HOST,
+    "port": process.env.DB_PORT,
+    "dialect": process.env.DB_DIALECT,
+    "timezone": "+07:00"
   },
   "test": {
     "username": "root",
@@ -24,4 +25,4 @@
     "host": "127.0.0.1",
     "dialect": "mysql"
   }
-}
+};

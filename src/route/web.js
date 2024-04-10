@@ -9,7 +9,7 @@ import {
     getTopDoctorHome, getAllDoctor, postInfoDoctor,
     getDetailDoctorById, bulkCreateSchedule,
     getScheduleDoctorByDate, getExtraInfoDoctorById,
-    getProfileDoctorById, getListPatientForDoctor, sendRemedy
+    getProfileDoctorById, getListPatientForDoctor, sendRemedy, getNumPatient
 } from "../controllers/doctorControler"
 import { postBookAppointment, postVerifyBookAppointment } from '../controllers/patientControler'
 import { createNewSpecialty, getAllSpecialty, getDetailSpecialtyById } from '../controllers/specialtyController'
@@ -44,6 +44,7 @@ let initWebRouter = (app) => {
     router.post('/api/send-remedy', sendRemedy)
 
     router.get('/api/get-list-patient-for-doctor', getListPatientForDoctor)
+    router.get('/api/get-num-patient', getNumPatient)
 
     // patientController
     router.post('/api/patient-book-appointment', postBookAppointment)
